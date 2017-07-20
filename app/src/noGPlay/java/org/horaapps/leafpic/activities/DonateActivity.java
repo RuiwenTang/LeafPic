@@ -15,9 +15,10 @@ import com.mikepenz.google_material_typeface_library.GoogleMaterial;
 import com.mikepenz.iconics.view.IconicsImageView;
 
 import org.horaapps.leafpic.R;
-import org.horaapps.leafpic.activities.base.ThemedActivity;
 import org.horaapps.leafpic.util.CustomTabService;
 import org.horaapps.leafpic.util.StringUtils;
+
+import horaapps.org.liz.ThemedActivity;
 
 /**
  * Created by Jibo on 02/03/2016.
@@ -37,6 +38,7 @@ public class DonateActivity extends ThemedActivity {
         scr = (ScrollView)findViewById(R.id.donateAct_scrollView);
         iniUi();
         cts = new CustomTabService(DonateActivity.this);
+        btnDonatePP = (Button) findViewById(R.id.button_donate_play_store);
     }
 
 
