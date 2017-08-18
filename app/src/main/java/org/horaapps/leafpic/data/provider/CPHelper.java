@@ -6,8 +6,8 @@ import android.provider.MediaStore;
 import com.orhanobut.hawk.Hawk;
 
 import org.horaapps.leafpic.data.Album;
-import org.horaapps.leafpic.data.ContentHelper;
 import org.horaapps.leafpic.data.Media;
+import org.horaapps.leafpic.data.StorageHelper;
 import org.horaapps.leafpic.data.filter.FoldersFileFilter;
 import org.horaapps.leafpic.data.filter.ImageFileFilter;
 import org.horaapps.leafpic.data.sort.SortingMode;
@@ -95,7 +95,7 @@ public class CPHelper {
     private static Observable<Album> getHiddenAlbums(Context context, ArrayList<String> excludedAlbums) {
         return Observable.create(subscriber -> {
             try {
-                for (File storage : ContentHelper.getStorageRoots(context))
+                for (File storage : StorageHelper.getStorageRoots(context))
                     fetchRecursivelyHiddenFolder(storage, subscriber, excludedAlbums, Hawk.get("set_include_video", true));
                 subscriber.onComplete();
             } catch (Exception err) {
@@ -153,8 +153,32 @@ public class CPHelper {
 
     public static Observable<Media> getMedia(Context context, Album album, SortingMode sortingMode, SortingOrder sortingOrder) {
 
-        if (album.getId()==-1)return getMediaFromStorage(context, album);
+        if (album.getId() == -1) return getMediaFromStorage(context, album);
+        else if(album.getId() == Album.ALL_MEDIA_ALBUM_ID) return getAllMediaFromMediaStore(context, sortingMode, sortingOrder);
         else return getMediaFromMediaStore(context, album, sortingMode, sortingOrder);
+    }
+
+    private static Observable<Media> getAllMediaFromMediaStore(Context context, SortingMode sortingMode, SortingOrder sortingOrder) {
+        Query.Builder query = new Query.Builder()
+                .uri(MediaStore.Files.getContentUri("external"))
+                .projection(Media.getProjection())
+                .sort(sortingMode.getMediaColumn())
+                .ascending(sortingOrder.isAscending());
+
+        if (Hawk.get("set_include_video", true)) {
+            query.selection(String.format("(%s=? or %s=?)",
+                    MediaStore.Files.FileColumns.MEDIA_TYPE,
+                    MediaStore.Files.FileColumns.MEDIA_TYPE));
+            query.args(
+                    MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE,
+                    MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO);
+        } else {
+            query.selection(String.format("%s=?",
+                    MediaStore.Files.FileColumns.MEDIA_TYPE));
+            query.args(MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE);
+        }
+
+        return QueryUtils.query(query.build(), context.getContentResolver(), new Media());
     }
 
     private static Observable<Media> getMediaFromStorage(Context context, Album album) {

@@ -2,17 +2,13 @@ package org.horaapps.leafpic.data;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.media.MediaScannerConnection;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.provider.MediaStore;
-import android.support.annotation.Nullable;
-import android.util.Log;
 
 import org.horaapps.leafpic.data.filter.FilterMode;
 import org.horaapps.leafpic.data.sort.SortingMode;
 import org.horaapps.leafpic.data.sort.SortingOrder;
-import org.horaapps.leafpic.new_way.CursorHandler;
 import org.horaapps.leafpic.util.StringUtils;
 
 import java.io.File;
@@ -24,6 +20,7 @@ import java.util.ArrayList;
  */
 public class Album implements CursorHandler, Parcelable {
 
+	public static final long ALL_MEDIA_ALBUM_ID = 8000;
 	private String name, path;
 	private long id = -1, dateModified;
 	private int count = -1;
@@ -35,6 +32,11 @@ public class Album implements CursorHandler, Parcelable {
 	public Album(String path, String name) {
 		this.name = name;
 		this.path = path;
+	}
+
+	public Album(String name, long id) {
+		this.name = name;
+		this.id = id;
 	}
 
 	public Album(String path, String name, long id, int count, long dateModified) {
@@ -80,6 +82,12 @@ public class Album implements CursorHandler, Parcelable {
 
 	public static Album getEmptyAlbum() {
 		Album album = new Album(null, null);
+		album.settings = AlbumSettings.getDefaults();
+		return album;
+	}
+
+	public static Album getAllMediaAlbum() {
+		Album album = new Album("All Media", ALL_MEDIA_ALBUM_ID);
 		album.settings = AlbumSettings.getDefaults();
 		return album;
 	}
@@ -177,66 +185,6 @@ public class Album implements CursorHandler, Parcelable {
 		return result;
 	}
 
-	@Deprecated
-	public ArrayList<Media> getMedia() {
-
-		return new ArrayList<>();
-
-		/*ArrayList<Media> mediaArrayList = new ArrayList<>();
-		switch (getFilterMode()) {
-			case ALL:
-				mediaArrayList = media;
-			default:
-				break;
-			case GIF:
-				for (Media media1 : media)
-					if (media1.isGif()) mediaArrayList.add(media1);
-				break;
-			case IMAGES:
-				for (Media media1 : media)
-					if (media1.isImage()) mediaArrayList.add(media1);
-				break;
-			case VIDEO:
-				for (Media media1 : media)
-					if (media1.isVideo()) mediaArrayList.add(media1);
-				break;
-		}
-		return mediaArrayList;*/
-	}
-
-
-	@Deprecated
-	public boolean addMedia(@Nullable Media media) {
-		if(media == null) return false;
-		//this.media.add(media);
-		Log.d("asd", "addMedia: "+media.getPath());
-		return true;
-	}
-
-
-	@Deprecated
-	public void setCurrentMedia(int index){  }
-
-	@Deprecated
-	public void setCurrentMedia(Media m){ }
-
-	@Deprecated
-	public Media getCurrentMedia() { return new Media(); }
-
-	@Deprecated
-	public int getCurrentMediaIndex() { return -1; }
-
-	@Deprecated
-	public void setCurrentMedia(String path) {
-		/*for (int i = 0; i < media.size(); i++)
-			if (media.get(i).getPath().equals(path)) {
-				currentMediaIndex = i;
-				break;
-			}*/
-	}
-
-
-
 	//region Album Properties Setters
 
 	public void setCount(int count) {
@@ -278,34 +226,6 @@ public class Album implements CursorHandler, Parcelable {
 
 	//endregion
 
-	public boolean renameCurrentMedia(Context context, String newName) {
-		boolean success = false;
-		try {
-			File from = new File(getCurrentMedia().getPath());
-			File to = new File(StringUtils.getPhotoPathRenamed(getCurrentMedia().getPath(), newName));
-			if (success =  ContentHelper.moveFile(context, from, to)) {
-				scanFile(context, new String[]{ to.getAbsolutePath(), from.getAbsolutePath() });
-				getCurrentMedia().setPath(to.getAbsolutePath());
-			}
-		} catch (Exception e) { e.printStackTrace(); }
-		return success;
-	}
-
-	@Deprecated
-	public boolean moveCurrentMedia(Context context, String targetDir) {
-		/*boolean success = false;
-		try {
-			String from = getCurrentMedia().getPath();
-			if (success = moveMedia(context, from, targetDir)) {
-				scanFile(context, new String[]{ from, StringUtils.getPhotoPathMoved(getCurrentMedia().getPath(), targetDir) });
-				media.remove(getCurrentMediaIndex());
-				setCount(media.size());
-			}
-		} catch (Exception e) { e.printStackTrace(); }
-		return success;*/
-		return false;
-	}
-
 	@Deprecated
 	public int moveSelectedMedia(Context context, String targetDir) {
 		/*int n = 0;
@@ -332,11 +252,6 @@ public class Album implements CursorHandler, Parcelable {
 		return -1;
 	}
 
-	private boolean moveMedia(Context context, String source, String targetDir) {
-		File from = new File(source);
-		File to = new File(targetDir, from.getName());
-		return ContentHelper.moveFile(context, from, to);
-	}
 
 	public void sortPhotos() {
 		/*Collections.sort(media, MediaComparators.getComparator(settings.getSortingMode(), settings.getSortingOrder()));*/
@@ -350,38 +265,6 @@ public class Album implements CursorHandler, Parcelable {
 		return success;*/
 		return false;
 	}
-
-	public boolean copyPhoto(Context context, String olderPath, String folderPath) {
-		boolean success = false;
-		try {
-			File from = new File(olderPath);
-			File to = new File(folderPath);
-			if (success = ContentHelper.copyFile(context, from, to))
-				scanFile(context, new String[]{ StringUtils.getPhotoPathMoved(getCurrentMedia().getPath(), folderPath) });
-
-		} catch (Exception e) { e.printStackTrace(); }
-		return success;
-	}
-
-	@Deprecated
-	public boolean deleteCurrentMedia(Context context) {
-		/*boolean success = deleteMedia(context, getCurrentMedia());
-		if (success) {
-			media.remove(getCurrentMediaIndex());
-			setCount(media.size());
-		}
-		return success;*/
-		return false;
-	}
-
-	private boolean deleteMedia(Context context, Media media) {
-		File file = new File(media.getPath());
-		boolean  success = ContentHelper.deleteFile(context, file);
-		scanFile(context, new String[]{ file.getAbsolutePath() });
-		return success;
-	}
-
-
 
 	@Override
 	public boolean equals(Object obj) {
@@ -412,11 +295,11 @@ public class Album implements CursorHandler, Parcelable {
 		/*found_id_album = false;
 		boolean success;
 		File dir = new File(StringUtils.getAlbumPathRenamed(getPath(), newName));
-		if (success = ContentHelper.mkdir(context, dir)) {
+		if (success = StorageHelper.mkdir(context, dir)) {
 			for (final Media m : media) {
 				File from = new File(m.getPath());
 				File to = new File(StringUtils.getPhotoPathRenamedAlbumChange(m.getPath(), newName));
-				if (ContentHelper.moveFile(context, from, to)) {
+				if (StorageHelper.moveFile(context, from, to)) {
 					scanFile(context, new String[]{from.getAbsolutePath() });
 					scanFile(context, new String[]{ to.getAbsolutePath() }, new MediaScannerConnection.OnScanCompletedListener() {
 						@Override
@@ -448,7 +331,7 @@ public class Album implements CursorHandler, Parcelable {
 	}
 
 	@Deprecated
-	private void scanFile(Context context, String[] path) { MediaScannerConnection.scanFile(context, path, null, null); }
+
 
 	@Override
 	public int describeContents() {

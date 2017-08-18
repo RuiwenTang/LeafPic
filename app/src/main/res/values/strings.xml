@@ -48,6 +48,12 @@
     <string name="date">Date</string>
     <string name="date_taken">Date taken</string>
 
+    <string name="delete_error">Unable to delete this file</string>
+    <string name="rename_error">Unable to rename this file</string>
+    <string name="move_error">Unable to move this file</string>
+    <string name="copy_error">Unable to copy this file</string>
+
+
     <string name="size">Size</string>
     <string name="numeric">As number</string>
     <string name="ascending">Ascending</string>
@@ -300,6 +306,7 @@ and this could make the media inaccessible from other apps. Use the exclude opti
 
     <!--DRAWER ITEMS -->
     <string name="local_folder">Local Folders</string>
+    <string name="all_media">All Media</string>
     <string name="hidden_folder">Hidden Folders</string>
     <string name="tags">Tags</string>
     <string name="timeline">Timeline</string>
@@ -382,4 +389,6 @@ and this could make the media inaccessible from other apps. Use the exclude opti
     <string name="error_thumbnail">Unable to find a thumbnail for the album!</string>
     <string name="no_app_to_perform">Unable to found an app to perform this action.</string>
     <string name="deleting_images">We are thorwing away all your media!</string>
+    <string name="start_slide_show">Start Slide</string>
+    <string name="stop_slide_show">Stop Slide</string>
 </resources>

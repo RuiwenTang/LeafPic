@@ -20,8 +20,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.util.List;
 
-import static org.horaapps.leafpic.new_way.BitmapUtils.addWhiteBorder;
-import static org.horaapps.leafpic.new_way.BitmapUtils.getCroppedBitmap;
+import static org.horaapps.leafpic.util.BitmapUtils.addWhiteBorder;
+import static org.horaapps.leafpic.util.BitmapUtils.getCroppedBitmap;
 
 /**
  * Created by dnld on 3/25/17.
@@ -106,7 +106,7 @@ public class AlbumsHelper {
     }
 
     public static boolean deleteAlbum(Album album, Context context) {
-        return ContentHelper.deleteFilesInFolder(context, new File(album.getPath()));
+        return StorageHelper.deleteFilesInFolder(context, new File(album.getPath()));
     }
 
 }

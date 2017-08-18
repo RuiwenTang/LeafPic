@@ -46,8 +46,8 @@ import org.horaapps.leafpic.R;
 import org.horaapps.leafpic.SelectAlbumBuilder;
 import org.horaapps.leafpic.activities.base.SharedMediaActivity;
 import org.horaapps.leafpic.data.Album;
-import org.horaapps.leafpic.data.ContentHelper;
 import org.horaapps.leafpic.data.Media;
+import org.horaapps.leafpic.data.StorageHelper;
 import org.horaapps.leafpic.fragments.AlbumsFragment;
 import org.horaapps.leafpic.fragments.BaseFragment;
 import org.horaapps.leafpic.fragments.RvMediaFragment;
@@ -87,12 +87,13 @@ public class MainActivity extends SharedMediaActivity {
                     // TODO: 4/5/17 moveout
                     if (Hawk.get("video_instant_play", false) && m.isVideo()) {
                         startActivity(new Intent(Intent.ACTION_VIEW)
-                                .setDataAndType(ContentHelper.getUriForFile(getApplicationContext(), m.getFile()), m.getMimeType()));
+                                .setDataAndType(StorageHelper.getUriForFile(getApplicationContext(), m.getFile()), m.getMimeType()));
                     } else {
-                        getAlbum().setCurrentMedia(m);
+
                         Intent intent = new Intent(MainActivity.this, SingleMediaActivity.class);
                         intent.setAction(SingleMediaActivity.ACTION_OPEN_ALBUM);
                         startActivity(intent);
+
                     }
                 }
             } else {
@@ -222,6 +223,11 @@ public class MainActivity extends SharedMediaActivity {
             }
         });
 
+        findViewById(R.id.ll_drawer_all_media).setOnClickListener(v -> {
+            drawer.closeDrawer(GravityCompat.START);
+            displayMedia(Album.getAllMediaAlbum());
+        });
+
         findViewById(R.id.ll_drawer_hidden).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -322,6 +328,7 @@ public class MainActivity extends SharedMediaActivity {
         /** TEXT VIEWS **/
         int color = getTextColor();
         ((TextView) findViewById(R.id.Drawer_Default_Item)).setTextColor(color);
+        ((TextView) findViewById(R.id.Drawer_Allmedia_Item)).setTextColor(color);
         ((TextView) findViewById(R.id.Drawer_Setting_Item)).setTextColor(color);
         ((TextView) findViewById(R.id.Drawer_Donate_Item)).setTextColor(color);
         ((TextView) findViewById(R.id.Drawer_wallpapers_Item)).setTextColor(color);
@@ -331,6 +338,7 @@ public class MainActivity extends SharedMediaActivity {
         /** ICONS **/
         color = getIconColor();
         ((IconicsImageView) findViewById(R.id.Drawer_Default_Icon)).setColor(color);
+        ((IconicsImageView) findViewById(R.id.Drawer_Allmedia_Icon)).setColor(color);
         ((IconicsImageView) findViewById(R.id.Drawer_Donate_Icon)).setColor(color);
         ((IconicsImageView) findViewById(R.id.Drawer_Setting_Icon)).setColor(color);
         ((IconicsImageView) findViewById(R.id.Drawer_wallpapers_Icon)).setColor(color);
@@ -705,8 +713,9 @@ public class MainActivity extends SharedMediaActivity {
                         .onFolderSelected(new SelectAlbumBuilder.OnFolderSelected() {
                             @Override
                             public void folderSelected(String path) {
+                                //TODo
                                 //swipeRefreshLayout.setRefreshing(true);
-                                if (getAlbum().moveSelectedMedia(getApplicationContext(), path) > 0) {
+                                /*if (getAlbum().moveSelectedMedia(getApplicationContext(), path) > 0) {
                                     if (getAlbum().getMedia().size() == 0) {
                                         //getAlbums().removeCurrentAlbum();
                                         //albumsAdapter.notifyDataSetChanged();
@@ -715,7 +724,7 @@ public class MainActivity extends SharedMediaActivity {
                                     //oldMediaAdapter.swapDataSet(getAlbum().getMedia());
                                     //finishEditMode();
                                     supportInvalidateOptionsMenu();
-                                } else requestSdCardPermissions();
+                                } else requestSdCardPermissions();*/
 
                                 //swipeRefreshLayout.setRefreshing(false);
                             }}).show();

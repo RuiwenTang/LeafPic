@@ -10,11 +10,12 @@ import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
 import com.mikepenz.iconics.view.IconicsImageView;
 
 import org.horaapps.leafpic.activities.SingleMediaActivity;
-import org.horaapps.leafpic.data.ContentHelper;
 import org.horaapps.leafpic.data.Media;
+import org.horaapps.leafpic.data.StorageHelper;
 
 /**
  * Created by dnld on 18/02/16.
@@ -55,27 +56,23 @@ public class VideoFragment extends Fragment {
             public void onClick(View v) {
                 startActivity(
                         new Intent(Intent.ACTION_VIEW)
-                                .setDataAndType(ContentHelper.getUriForFile(getContext(), video.getFile()),
+                                .setDataAndType(StorageHelper.getUriForFile(getContext(), video.getFile()),
                                         video.getMimeType()));
             }
         });
 
-        Glide.with(getContext())
-                .load(video.getUri())
-                .asBitmap()
+        RequestOptions options = new RequestOptions()
                 .signature(video.getSignature())
                 .centerCrop()
-                .diskCacheStrategy(DiskCacheStrategy.RESULT)
-                .thumbnail(0.5f)
-                .animate(org.horaapps.leafpic.R.anim.fade_in)
+                .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC);
+
+
+        Glide.with(getContext())
+                .load(video.getUri())
+                .apply(options)
                 .into(picture);
 
-        picture.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ((SingleMediaActivity) getActivity()).toggleSystemUI();
-            }
-        });
+        picture.setOnClickListener(v -> ((SingleMediaActivity) getActivity()).toggleSystemUI());
         return view;
     }
 }
